@@ -1,11 +1,6 @@
 <template>
   <div id="home">
-    <h1>导航页</h1>
-    <ul>
-      <li>
-        <router-link to="/image-processor">图片灰度转换与二值化</router-link>
-      </li>
-    </ul>
+    <h1>Home</h1>
   </div>
 </template>
 
