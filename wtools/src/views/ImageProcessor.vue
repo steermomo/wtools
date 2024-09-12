@@ -1,30 +1,37 @@
 <template>
-  <div id="app">
-    <h1>图片灰度转换与二值化</h1>
+  <div id="image-binary">
+    <!-- <h1>水印二向箔</h1> -->
 
     <!-- 图片上传 -->
-    <input type="file" @change="loadImage" accept="image/*" />
+    <v-container class="">
+      <v-row align="start" style="height: 150px;padding-top: 5em;" no-gutters>
+        <v-col>
+          <v-file-input label="Img" variant="solo" @change="loadImage"></v-file-input>
+        </v-col>
 
-    <!-- 阈值调整 -->
-    <label for="threshold">二值化阈值: {{ threshold }}</label>
-    <input
-      type="range"
-      id="threshold"
-      v-model="threshold"
-      min="0"
-      max="255"
-    />
-
-    <!-- 点击按钮生成结果 -->
-    <button @click="applyThreshold">重新生成二值化图片</button>
-
-    <!-- 显示原始图片 -->
-    <h2>原始图片</h2>
-    <img :src="imageSrc" v-if="imageSrc" alt="Uploaded Image" />
+      </v-row>
+      <label for="threshold">Threshold: {{ threshold }}</label>
+      <v-row justify="space-around" style="width: 60%">
+        <v-col>
+          <v-slider type="range" id="threshold" v-model="thresholdValue" min="0" max="255"></v-slider>
+        </v-col>
+      </v-row>
+      <v-row justify="center">
+        <v-btn prepend-icon="$vuetify" variant="tonal" @click="applyThreshold">
+          Pia
+        </v-btn>
+      </v-row>
+    </v-container>
 
     <!-- 显示处理后的图片 -->
-    <h2>处理后的图片</h2>
-    <canvas ref="canvas" v-if="imageSrc"></canvas>
+    <h2>After</h2>
+    <canvas ref="canvas" v-if="imageSrc" class="responsive-canvas"></canvas>
+
+    <!-- 显示原始图片 -->
+    <h2>Origin</h2>
+    <img :src="imageSrc" v-if="imageSrc" alt="Uploaded Image" class="responsive-img" />
+
+
   </div>
 </template>
 
@@ -37,6 +44,16 @@ export default {
       canvas: null, // Canvas 元素
       context: null, // Canvas 上下文
     };
+  },
+  computed: {
+    thresholdValue: {
+      get() {
+        return this.threshold;
+      },
+      set(value) {
+        this.threshold = Math.round(value);
+      }
+    }
   },
   methods: {
     loadImage(event) {
@@ -61,28 +78,39 @@ export default {
         reader.readAsDataURL(file);
       }
     },
+
     applyThreshold() {
       if (this.context && this.imageSrc) {
-        const imgData = this.context.getImageData(
-          0,
-          0,
-          this.canvas.width,
-          this.canvas.height
-        );
-        const data = imgData.data;
+        // 清空 canvas
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // 从imageSrc 中加载图像
+        const img = new Image();
+        img.src = this.imageSrc;
+        img.onload = () => {
+          this.canvas.width = img.width;
+          this.canvas.height = img.height;
+          this.context.drawImage(img, 0, 0);
+          const imgData = this.context.getImageData(
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+          );
+          const data = imgData.data;
 
-        // 将图像转换为灰度并应用二值化
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-          const binary = gray > this.threshold ? 255 : 0;
-          data[i] = data[i + 1] = data[i + 2] = binary;
+          // 将图像转换为灰度并应用二值化
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const binary = gray > this.threshold ? 255 : 0;
+            data[i] = data[i + 1] = data[i + 2] = binary;
+          }
+
+          // 更新 canvas 上的图像
+          this.context.putImageData(imgData, 0, 0);
         }
-
-        // 更新 canvas 上的图像
-        this.context.putImageData(imgData, 0, 0);
       }
     },
   },
@@ -97,5 +125,15 @@ export default {
 canvas {
   margin-top: 20px;
   border: 1px solid #000;
+}
+
+.responsive-canvas {
+  width: 100%;
+  max-width: 100%;
+}
+
+.responsive-img {
+  width: 100%;
+  max-width: 100%;
 }
 </style>
