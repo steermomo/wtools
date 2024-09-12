@@ -1,22 +1,22 @@
-import Vue from 'vue';
-import Router from 'vue-router';
 import HomePage from './views/HomePage.vue';
 import ImageProcessor from './views/ImageProcessor.vue';
+import { createMemoryHistory, createRouter } from 'vue-router'
 
-Vue.use(Router);
+const routes =[
+  {
+    path: '/',
+    name: 'Home',
+    component: HomePage,
+  },
+  {
+    path: '/image-processor',
+    name: 'ImageProcessor',
+    component: ImageProcessor,
+  },
+]
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+})
 
-export default new Router({
-  mode: 'history', // 使用 history 模式以去掉 URL 中的 # 号
-  routes: [
-    {
-      path: '/',
-      name: 'Home',
-      component: HomePage,
-    },
-    {
-      path: '/image-processor',
-      name: 'ImageProcessor',
-      component: ImageProcessor,
-    },
-  ],
-});
+export default router;
