@@ -1,23 +1,25 @@
+import { createApp } from 'vue'
+import './style.css'
 // import Vue from 'vue';
-import App from './App.vue';
 import router from './router';
-import { createApp } from 'vue';
+import App from './App.vue';
 
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
-// Vue.config.productionTip = false;
+
 
 const vuetify = createVuetify({
-  components,
-  directives,
+    components,
+    directives,
 })
 
 
 createApp(App)
-  .use(router)
-  .use(vuetify)
-  .mount('#app');
+    .use(router)
+    .use(vuetify)
+    .mount('#app');

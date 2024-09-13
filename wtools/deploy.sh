@@ -6,4 +6,4 @@ set -e
 # build
 pnpm run build
 
-pnpm run ghpage
+pnpm run pages

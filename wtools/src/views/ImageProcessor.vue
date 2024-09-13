@@ -20,7 +20,7 @@
 
         <v-row justify="center" align="center">
             <v-col>
-                <v-btn prepend-icon="mdi-arrow-collapse-vertical" variant="tonal" @click="applyThreshold">
+                <v-btn  prepend-icon="home" variant="tonal" @click="applyThreshold">
                     压扁
                 </v-btn>
             </v-col>
