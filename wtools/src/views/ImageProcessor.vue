@@ -20,7 +20,7 @@
 
         <v-row justify="center" align="center">
             <v-col>
-                <v-btn prepend-icon="home" variant="tonal" @click="applyThreshold">
+                <v-btn prepend-icon="home" variant="tonal" @click="drawAndProcessImage">
                     压扁
                 </v-btn>
             </v-col>
