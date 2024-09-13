@@ -20,7 +20,7 @@
 
         <v-row justify="center" align="center">
             <v-col>
-                <v-btn  prepend-icon="home" variant="tonal" @click="applyThreshold">
+                <v-btn prepend-icon="home" variant="tonal" @click="drawAndProcessImage">
                     压扁
                 </v-btn>
             </v-col>
@@ -72,56 +72,59 @@ export default {
                 reader.onload = (e) => {
                     this.imageSrc = e.target.result; // 保存图片路径
                     this.$nextTick(() => {
-                        this.canvas = this.$refs.canvas;
-                        this.context = this.canvas.getContext('2d');
-                        const img = new Image();
-                        img.src = this.imageSrc;
-                        img.onload = () => {
-                            this.canvas.width = img.width;
-                            this.canvas.height = img.height;
-                            this.context.drawImage(img, 0, 0);
-                            this.applyThreshold(); // 初始化时应用阈值
-                        };
+                        this.initializeCanvas();
+                        this.drawAndProcessImage();
                     });
                 };
                 reader.readAsDataURL(file);
             }
         },
 
-        applyThreshold() {
+        initializeCanvas() {
+            this.canvas = this.$refs.canvas;
+            this.context = this.canvas.getContext('2d');
+        },
+
+        drawAndProcessImage() {
             if (this.context && this.imageSrc) {
-                // 清空 canvas
-                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                // 从imageSrc 中加载图像
                 const img = new Image();
                 img.src = this.imageSrc;
                 img.onload = () => {
                     this.canvas.width = img.width;
                     this.canvas.height = img.height;
                     this.context.drawImage(img, 0, 0);
-                    const imgData = this.context.getImageData(
-                        0,
-                        0,
-                        this.canvas.width,
-                        this.canvas.height
-                    );
-                    const data = imgData.data;
-
-                    // 将图像转换为灰度并应用二值化
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
-                        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                        const binary = gray > this.threshold ? 255 : 0;
-                        data[i] = data[i + 1] = data[i + 2] = binary;
-                    }
-
-                    // 更新 canvas 上的图像
-                    this.context.putImageData(imgData, 0, 0);
-                }
+                    this.applyThreshold(); // 绘制图像后立即应用阈值处理
+                };
             }
         },
+
+        applyThreshold() {
+            if (this.context && this.imageSrc) {
+                const imgData = this.context.getImageData(
+                    0,
+                    0,
+                    this.canvas.width,
+                    this.canvas.height
+                );
+                const data = imgData.data;
+
+                const threshold = this.threshold;
+                const length = data.length;
+                let i = 0;
+
+                while (i < length) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    const binary = gray > threshold ? 255 : 0;
+                    data[i] = data[i + 1] = data[i + 2] = binary;
+                    i += 4;
+                }
+                // 更新 canvas 上的图像
+                this.context.putImageData(imgData, 0, 0);
+            }
+        }
     },
 };
 </script>
